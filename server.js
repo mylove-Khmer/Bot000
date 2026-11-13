@@ -11,8 +11,8 @@ const upload = multer({
     limits: { fileSize: 1024 * 1024 * 1024 } 
 });
 
-// ប្រើប្រាស់ Gemini API Key របស់អ្នក
-const ai = new GoogleGenAI({ apiKey: "AQ.Ab8RN6JNHhMKkwA5uB45idQcc3hyPi_VKljYbdxLvzfjueqRpA" });
+// ដាក់ API Key ថ្មី និងត្រឹមត្រូវរបស់អ្នកនៅទីនេះ
+const ai = new GoogleGenAI({ apiKey: "AQ.Ab8RN6JJ1QkApS34yIm2YJGa-1xpP8WQoiQFGTMDc3idWRQjtg" });
 
 app.use(express.static(__dirname));
 app.use('/outputs', express.static('outputs'));
@@ -28,7 +28,6 @@ app.post('/api/process-video', upload.single('video'), async (req, res) => {
 
         console.log("កំពុងដំណើរការជាមួយ Gemini AI...");
 
-        // ប្រើប្រាស់ Text Generation ផ្ទាល់ ដើម្បីជៀសវាងបញ្ហា File MimeType
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
             contents: [
@@ -44,7 +43,6 @@ app.post('/api/process-video', upload.single('video'), async (req, res) => {
             fs.mkdirSync('outputs');
         }
 
-        // ចម្លងវីដេអូសម្រាប់បង្ហាញលទ្ធផល និងទាញយក
         fs.copyFileSync(videoPath, outputPath);
         fs.unlinkSync(videoPath);
 
