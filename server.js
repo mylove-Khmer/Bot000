@@ -20,22 +20,21 @@ app.post('/api/process-video', upload.single('video'), async (req, res) => {
         const videoPath = req.file.path;
         const outputPath = path.join(__dirname, 'outputs', `khmer_dubbed_${Date.now()}.mp4`);
 
-        console.log("កំពុងបង្កើតការបកប្រែជាភាគៗយ៉ាងរហ័ស...");
+        console.log("កំពុងដំណើរការបកប្រែវីដេអូជាភាគៗ...");
 
-        // ប្រើប្រាស់ prompt បែងចែកជាភាគៗច្បាស់លាស់ ដើម្បីឱ្យ AI ឆ្លើយតបលឿន និងមានសចក្តីជាដុំៗ
         const response = await ai.models.generateContent({
             model: 'gemini-3.8-flash',
             contents: [
                 { 
-                    text: "សូមបែងចែក និងសរសេរអត្ថបទអធិប្បាយរឿងជាភាសាខ្មែរធម្មជាតិសម្រាប់វីដេអូ ដោយចែកចេញជា ៣ ភាគ (ភាគទី១, ភាគទី២, ភាគទី៣) ឱ្យបានច្បាស់លាស់ដាច់ៗពីគ្នា។" 
+                    text: "សូមសរសេរអត្ថបទអធិប្បាយរឿងជាភាសាខ្មែរធម្មជាតិសម្រាប់វីដេអូ ដោយចែកចេញជារឿងជាភាគៗច្បាស់លាស់។" 
                 }
             ]
         });
 
         const fullScript = response.text || "ការបកប្រែត្រូវបានបញ្ចប់។";
         
-        // បែងចែកអត្ថបទចេញជាភាគៗដោយស្វ័យប្រវត្តិ
-        const parts = fullScript.split(/(ភាគទី\s*[១២៣]/g)).filter(Boolean);
+        // កែសម្រួលកូដបែងចែកភាគដោយសុវត្ថិភាពខ្ពស់
+        const parts = fullScript.split('\n').filter(line => line.trim().length > 0);
 
         if (!fs.existsSync('outputs')) {
             fs.mkdirSync('outputs');
@@ -48,7 +47,7 @@ app.post('/api/process-video', upload.single('video'), async (req, res) => {
             success: true,
             outputUrl: `/outputs/${path.basename(outputPath)}`,
             script: fullScript,
-            parts: parts.length > 1 ? parts : [fullScript]
+            parts: parts.length > 0 ? parts : [fullScript]
         });
 
     } catch (error) {
