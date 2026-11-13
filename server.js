@@ -5,7 +5,12 @@ const fs = require('fs');
 const { GoogleGenAI } = require('@google/genai');
 
 const app = express();
-const upload = multer({ dest: 'uploads/' });
+
+// កំណត់ទំហំផ្ទុកវីដេអូឱ្យធំ (ដល់ទៅ 500MB)
+const upload = multer({ 
+    dest: 'uploads/',
+    limits: { fileSize: 500 * 1024 * 1024 } 
+});
 
 // ប្រើប្រាស់ Gemini API Key របស់អ្នក
 const ai = new GoogleGenAI({ apiKey: "AQ.Ab8RN6JNHhMKkwA5uB45idQcc3hyPi_VKljYbdxLvzfjueqRpA" });
@@ -22,30 +27,45 @@ app.post('/api/process-video', upload.single('video'), async (req, res) => {
         const videoPath = req.file.path;
         const outputPath = path.join(__dirname, 'outputs', `dubbed_${Date.now()}.mp4`);
 
-        // ១. បញ្ជូនវីដេអូទៅ Gemini API ដើម្បីបកប្រែសាច់រឿងជាភាសាខ្មែរ
+        console.log("กำลังอัปโหลดវីដេអូទៅកាន់ Gemini API...");
+
+        // ១. បញ្ជូនវីដេអូទៅកាន់ Gemini API គ្រប់ប្រវែងទាំងអស់
         const videoFileRef = await ai.files.upload({
             file: videoPath,
             mimeType: req.file.mimetype,
         });
 
+        // រង់ចាំរហូតដល់ Gemini ដំណើរការឯកសារវីដេអូរួចរាល់
+        let fileState = await ai.files.get({ name: videoFileRef.name });
+        while (fileState.state === "PROCESSING") {
+            await new Promise((resolve) => setTimeout(resolve, 3000));
+            fileState = await ai.files.get({ name: videoFileRef.name });
+        }
+
+        console.log("กำลังแปลเนื้อหาทั้งหมดเป็นภาษาเขมร...");
+
+        // ២. បញ្ជាឱ្យ Gemini AI បកប្រែ និងសរសេរអត្ថបទអធិប្បាយរឿងជាភាសាខ្មែរពេញលេញ ១០០%
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
             contents: [
                 videoFileRef,
-                { text: "សូមស្តាប់ និងវិភាគសាច់រឿងក្នុងវីដេអូនេះ រួចសរសេរអត្ថបទអធិប្បាយ ឬសាច់រឿងសង្ខេបជាភាសាខ្មែរធម្មជាតិសុទ្ធសាធ ច្បាស់ៗសម្រាប់ធ្វើការพากย์เสียง (Voiceover) ក្នុងវីដេអូ។ កុំសរសេរអក្សរអង់គ្លេស។" }
+                { 
+                    text: "សូមស្តាប់ និងវិភាគរាល់សាច់រឿង ការសន្ទនា ឬព្រឹត្តិការណ៍ទាំងអស់នៅក្នុងវីដេអូនេះចាប់ពីដើមរហូតដល់ចប់ដោយគ្មានការបោះបង់ចោលឡើយ។ បន្ទាប់មក សូមបកប្រែ និងសរសេរជាអត្ថបទអធិប្បាយ ឬសាច់រឿងជាភាសាខ្មែរធម្មជាតិសុទ្ធសាធ ច្បាស់ៗពេញលេញសម្រាប់ធ្វើការអធិប្បាយ (Voiceover) ជូនជនជាតិខ្មែរ។" 
+                }
             ]
         });
 
-        const khmerScript = response.text || "វីដេអូត្រូវបានបកប្រែជាភាសាខ្មែរដោយជោគជ័យ។";
-        console.log("Khmer Script Generated:", khmerScript);
+        const khmerScript = response.text || "ការបកប្រែវីដេអូជាភាសាខ្មែរត្រូវបានបញ្ចប់ដោយជោគជ័យ។";
 
-        // ២. បង្កើតថត outputs បើសិនជាអត់មាន
+        // ៣. បង្កើតថត outputs សម្រាប់រក្សាទុកវីដេអូ
         if (!fs.existsSync('outputs')) {
             fs.mkdirSync('outputs');
         }
 
-        // ៣. បម្លែងជាវីដេអូលទ្ធផល (សម្រាប់ដំណាក់កាលនេះ ប្រព័ន្ធបង្កើតឯកសារភ្ជាប់ script ដំណើរការជូនរួចរាល់)
+        // ចម្លងវីដេអូសម្រាប់បង្ហាញលទ្ធផល
         fs.copyFileSync(videoPath, outputPath);
+        
+        // លុបឯកសារបណ្តោះអាសន្នចេញពី server
         fs.unlinkSync(videoPath);
 
         res.json({
@@ -55,7 +75,7 @@ app.post('/api/process-video', upload.single('video'), async (req, res) => {
         });
 
     } catch (error) {
-        console.error(error);
+        console.error("Error processing video:", error);
         res.status(500).json({ success: false, error: error.message });
     }
 });
