@@ -20,10 +20,11 @@ app.post('/api/process-video', upload.single('video'), async (req, res) => {
         const videoPath = req.file.path;
         const outputPath = path.join(__dirname, 'outputs', `khmer_dubbed_${Date.now()}.mp4`);
 
-        console.log("កំពុងដំណើរការបកប្រែវីដេអូជាភាគៗ...");
+        console.log("កំពុងដំណើរការបកប្រែវីដេអូ...");
 
+        // ប្រើប្រាស់ gemini-1.5-flash ដែលមានស្ថេរភាពខ្ពស់ និងមិនសូវស្ទះ Server
         const response = await ai.models.generateContent({
-            model: 'gemini-3.8-flash',
+            model: 'gemini-1.5-flash',
             contents: [
                 { 
                     text: "សូមសរសេរអត្ថបទអធិប្បាយរឿងជាភាសាខ្មែរធម្មជាតិសម្រាប់វីដេអូ ដោយចែកចេញជារឿងជាភាគៗច្បាស់លាស់។" 
@@ -32,8 +33,6 @@ app.post('/api/process-video', upload.single('video'), async (req, res) => {
         });
 
         const fullScript = response.text || "ការបកប្រែត្រូវបានបញ្ចប់។";
-        
-        // កែសម្រួលកូដបែងចែកភាគដោយសុវត្ថិភាពខ្ពស់
         const parts = fullScript.split('\n').filter(line => line.trim().length > 0);
 
         if (!fs.existsSync('outputs')) {
