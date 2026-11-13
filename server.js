@@ -24,16 +24,16 @@ app.post('/api/process-video', upload.single('video'), async (req, res) => {
             return res.status(400).json({ success: false, error: 'សូមបញ្ចូល API Key' });
         }
 
-        // สร้าง GoogleGenAI instance ដោយប្រើ Key ដែលភ្ញៀវបញ្ជូនមកផ្ទាល់
         const ai = new GoogleGenAI({ apiKey: userApiKey });
 
         const videoPath = req.file.path;
         const outputPath = path.join(__dirname, 'outputs', `khmer_dubbed_${Date.now()}.mp4`);
 
-        console.log("កំពុងដំណើរការជាមួយ Gemini AI (User API Key)...");
+        console.log("កំពុងដំណើរការជាមួយ Gemini AI (gemini-3.8-flash)...");
 
+        // ប្រើប្រាស់ម៉ូដែល gemini-3.8-flash តាមការណែនាំថ្មី
         const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-3.8-flash',
             contents: [
                 { 
                     text: "សូមបង្កើតអត្ថបទអធិប្បាយរឿង ឬសាច់រឿងជាភាសាខ្មែរធម្មជាតិសុទ្ធសាធយ៉ាងលម្អិត ច្បាស់ៗ សម្រាប់ធ្វើជាសំឡេងអធិប្បាយស្រីមុំក្នុងវីដេអូ។" 
