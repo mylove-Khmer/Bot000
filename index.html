@@ -19,7 +19,7 @@
                 </div>
                 <div>
                     <h1 class="font-bold text-lg text-white">Khmer AI Video Dubber Studio</h1>
-                    <p class="text-xs text-slate-400">ប្រព័ន្ធបកប្រែវីដេអូ និងប្ដូរសំឡេងជាភាសាខ្មែរ ១០០%</p>
+                    <p class="text-xs text-slate-400">ប្រព័ន្ធបកប្រែវីដេអូ និងប្ដូរសំឡេងជាភាគៗ (Fast AI Split)</p>
                 </div>
             </div>
         </div>
@@ -30,12 +30,9 @@
         <div class="lg:col-span-1 space-y-6">
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
                 <h2 class="text-lg font-semibold text-indigo-400 flex items-center">
-                    <i class="fa-solid fa-key mr-2"></i> បញ្ចូល Gemini API Key របស់អ្នក
+                    <i class="fa-solid fa-key mr-2"></i> បញ្ចូល Gemini API Key
                 </h2>
-                <div>
-                    <input type="password" id="userApiKey" placeholder="วาง API Key ទីនេះ (ឧ. AQ...)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500">
-                    <p class="text-[11px] text-slate-500 mt-1">យក Key ពី Google AI Studio មកដាក់ទីនេះ</p>
-                </div>
+                <input type="password" id="userApiKey" placeholder="วาง API Key (AIzaSy...)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-slate-200">
 
                 <h2 class="text-lg font-semibold text-indigo-400 flex items-center pt-2">
                     <i class="fa-solid fa-cloud-arrow-up mr-2"></i> ជ្រើសរើសវីដេអូ
@@ -63,7 +60,7 @@
 
                 <button onclick="uploadAndProcess()" id="processBtn" disabled class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 disabled:opacity-50 text-white font-medium py-3 rounded-xl shadow-lg transition-all flex items-center justify-center space-x-2">
                     <i class="fa-solid fa-wand-magic-sparkles"></i>
-                    <span>បកប្រែ និងប្ដូរសំឡេងខ្មែរឥឡូវនេះ</span>
+                    <span>បកប្រែជាភាគៗ និងប្ដូរសំឡេងឥឡូវនេះ</span>
                 </button>
             </div>
         </div>
@@ -71,7 +68,7 @@
         <div class="lg:col-span-2 space-y-6">
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col h-full min-h-[480px]">
                 <h2 class="text-lg font-semibold mb-4 text-indigo-400 flex items-center">
-                    <i class="fa-solid fa-display mr-2"></i> លទ្ធផលវីដេអូសំឡេងខ្មែរ
+                    <i class="fa-solid fa-display mr-2"></i> លទ្ធផលបកប្រែជាភាគៗ (Parts & Script)
                 </h2>
                 
                 <div id="displayArea" class="flex-grow bg-slate-950 rounded-xl border border-slate-800 flex flex-col items-center justify-center p-6 text-center relative overflow-hidden">
@@ -79,25 +76,20 @@
                         <div class="w-16 h-16 rounded-full bg-slate-900 text-slate-600 mx-auto flex items-center justify-center text-2xl">
                             <i class="fa-solid fa-film"></i>
                         </div>
-                        <p class="text-sm text-slate-400">សូមបញ្ចូល API Key និងវីដេអូ រួចចុចប៊ូតុងបកប្រែដើម្បីចាប់ផ្តើម</p>
+                        <p class="text-sm text-slate-400">សូមបញ្ចូល Key និងវីដេអូ រួចចុចប៊ូតុងដើម្បីបកប្រែរហ័សជាភាគៗ</p>
                     </div>
 
                     <div id="processingState" class="hidden space-y-4 w-full max-w-md">
                         <div class="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
-                        <p class="text-sm text-slate-300 font-medium">កំពុងវិភាគវីដេអូ និងបកប្រែជាភាសាខ្មែរ...</p>
+                        <p class="text-sm text-slate-300 font-medium" id="statusText">កំពុងបែងចែកវីដេអូជាភាគៗ និងបកប្រែ...</p>
                     </div>
 
-                    <div id="resultState" class="hidden w-full h-full flex flex-col items-center justify-center space-y-4">
-                        <video id="outputVideo" controls class="w-full max-h-[340px] rounded-lg shadow-lg bg-black"></video>
-                        <div class="flex space-x-4">
-                            <a id="downloadLink" class="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-medium transition-all shadow-lg flex items-center space-x-2">
-                                <i class="fa-solid fa-download"></i>
-                                <span>ទាញយកវីដេអូសំឡេងខ្មែរ (MP4)</span>
-                            </a>
-                            <button onclick="location.reload()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2.5 rounded-xl text-sm font-medium">
-                                <i class="fa-solid fa-rotate-right mr-1"></i> សាកល្បងម្ដងទៀត
-                            </button>
-                        </div>
+                    <div id="resultState" class="hidden w-full h-full flex flex-col items-start justify-start space-y-4 text-left overflow-y-auto max-h-[400px]">
+                        <h3 class="text-indigo-400 font-semibold text-base"><i class="fa-solid fa-list-check mr-2"></i> អត្ថបទបកប្រែតាមភាគ (Khmer Script Parts):</h3>
+                        <div id="scriptPartsContainer" class="w-full space-y-3 text-sm text-slate-300 bg-slate-900 p-4 rounded-xl border border-slate-800"></div>
+                        <a id="downloadLink" class="w-full text-center bg-emerald-600 hover:bg-emerald-500 text-white py-3 rounded-xl font-medium shadow-lg transition-all">
+                            <i class="fa-solid fa-download mr-2"></i> ទាញយកវីដេអូសម្រេចជោគជ័យ (MP4)
+                        </a>
                     </div>
                 </div>
             </div>
@@ -131,10 +123,7 @@
 
         async function uploadAndProcess() {
             const apiKey = document.getElementById('userApiKey').value.trim();
-            if (!apiKey) {
-                alert('សូមបញ្ចូល Gemini API Key របស់អ្នកសិន!');
-                return;
-            }
+            if (!apiKey) { alert('សូមបញ្ចូល API Key របស់អ្នក!'); return; }
             if (!selectedFile) return;
             
             document.getElementById('placeholderState').classList.add('hidden');
@@ -144,19 +133,30 @@
             const formData = new FormData();
             formData.append('video', selectedFile);
             formData.append('apiKey', apiKey);
-            formData.append('voice', document.getElementById('voiceType').value);
 
             try {
-                const response = await fetch('/api/process-video', {
-                    method: 'POST',
-                    body: formData
-                });
+                const response = await fetch('/api/process-video', { method: 'POST', body: formData });
                 const data = await response.json();
 
                 if (data.success) {
                     document.getElementById('processingState').classList.add('hidden');
                     document.getElementById('resultState').classList.remove('hidden');
-                    document.getElementById('outputVideo').src = data.outputUrl;
+                    
+                    const container = document.getElementById('scriptPartsContainer');
+                    container.innerHTML = '';
+                    
+                    // បង្ហាញការបកប្រែជាភាគៗ (Parts) យ៉ាងស្អាត
+                    if (data.parts && data.parts.length > 0) {
+                        data.parts.forEach((part, index) => {
+                            const div = document.createElement('div');
+                            div.className = "p-3 bg-slate-950 rounded-lg border border-slate-800";
+                            div.innerHTML = `<strong class="text-indigo-400">ភាគទី ${index + 1}:</strong> ${part}`;
+                            container.appendChild(div);
+                        });
+                    } else {
+                        container.innerHTML = `<p>${data.script}</p>`;
+                    }
+
                     document.getElementById('downloadLink').href = data.outputUrl;
                 } else {
                     alert('មានបញ្ហា: ' + (data.error || 'មិនអាចដំណើរការបាន'));
