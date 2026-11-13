@@ -10,7 +10,8 @@ const upload = multer({ dest: 'uploads/' });
 // ប្រើប្រាស់ Gemini API Key របស់អ្នក
 const ai = new GoogleGenAI({ apiKey: "AQ.Ab8RN6JNHhMKkwA5uB45idQcc3hyPi_VKljYbdxLvzfjueqRpA" });
 
-app.use(express.static('public'));
+// ប្រើប្រាស់ថតបច្ចុប្បន្នផ្ទាល់ (Root Directory) សម្រាប់ index.html
+app.use(express.static(__dirname));
 app.use('/outputs', express.static('outputs'));
 
 app.post('/api/process-video', upload.single('video'), async (req, res) => {
@@ -22,7 +23,6 @@ app.post('/api/process-video', upload.single('video'), async (req, res) => {
         const videoPath = req.file.path;
         const outputPath = path.join(__dirname, 'outputs', `dubbed_${Date.now()}.mp4`);
 
-        // ១. បញ្ជូនវីដេអូទៅ Gemini API ដើម្បីវិភាគ និងបកប្រែអត្ថន័យជាភាសាខ្មែរ
         const videoFileRef = await ai.files.upload({
             file: videoPath,
             mimeType: req.file.mimetype,
@@ -32,24 +32,16 @@ app.post('/api/process-video', upload.single('video'), async (req, res) => {
             model: 'gemini-2.5-flash',
             contents: [
                 videoFileRef,
-                { text: "សូមស្តាប់ការសន្ទនា ឬវិភាគសាច់រឿងក្នុងវីដេអូនេះ រួចសរសេរការបកប្រែជាអត្ថបទអធិប្បាយជាភាសាខ្មែរច្បាស់ៗសម្រាប់ធ្វើការพากย์เสียง (Voiceover)។" }
+                { text: "សូមស្តាប់ការសន្ទនា ឬវិភាគសាច់រឿងក្នុងវីដេអូនេះ រួចសរសេរការបកប្រែជាអត្ថបទអធិប្បាយជាភាសាខ្មែរច្បាស់ៗសម្រាប់ធ្វើការพากย์เสียง (Voiceover)。" }
             ]
         });
 
         const khmerScript = response.text;
-        console.log("Khmer Translated Script:", khmerScript);
 
-        // ២. (ចំណាំដំណាក់កាល TTS & FFmpeg): 
-        // ត្រង់ចំណុចនេះ ប្រព័ន្ធត្រូវប្រើប្រាស់ Google Text-to-Speech (TTS) API ដើម្បីបម្លែងអត្ថបទខ្មែរ ($khmerScript) 
-        // ទៅជាဖိုင်សំឡេង (.mp3) និងប្រើប្រាស់ไลบรารี FFmpeg ដើម្បីបញ្ចូលសំឡេងថ្មីជាន់លើវីដេអូដើម។
-        // សម្រាប់ការសាកល្បងបណ្តោះអាសន្ន យើងចម្លងវីដេអូដើមចេញជាលទ្ធផល៖
-        
         if (!fs.existsSync('outputs')) {
-            fs.existsSync('outputs') || fs.mkdirSync('outputs');
+            fs.mkdirSync('outputs');
         }
         fs.copyFileSync(videoPath, outputPath);
-
-        // លុបឯកសារបណ្តោះអាសន្ន
         fs.unlinkSync(videoPath);
 
         res.json({
