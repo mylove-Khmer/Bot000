@@ -5,43 +5,37 @@ const fs = require('fs');
 const { GoogleGenAI } = require('@google/genai');
 
 const app = express();
-const upload = multer({ 
-    dest: 'uploads/',
-    limits: { fileSize: 1024 * 1024 * 1024 } 
-});
+const upload = multer({ dest: 'uploads/', limits: { fileSize: 1024 * 1024 * 1024 } });
 
 app.use(express.static(__dirname));
 app.use('/outputs', express.static('outputs'));
 
 app.post('/api/process-video', upload.single('video'), async (req, res) => {
     try {
-        if (!req.file) {
-            return res.status(400).json({ success: false, error: 'សូមបញ្ចូលវីដេអូសិន' });
+        if (!req.file || !req.body.apiKey) {
+            return res.status(400).json({ success: false, error: 'សូមបញ្ចូលវីដេអូ និង API Key ឱ្យបានត្រឹមត្រូវ' });
         }
 
-        const userApiKey = req.body.apiKey;
-        if (!userApiKey) {
-            return res.status(400).json({ success: false, error: 'សូមបញ្ចូល API Key' });
-        }
-
-        const ai = new GoogleGenAI({ apiKey: userApiKey });
-
+        const ai = new GoogleGenAI({ apiKey: req.body.apiKey });
         const videoPath = req.file.path;
         const outputPath = path.join(__dirname, 'outputs', `khmer_dubbed_${Date.now()}.mp4`);
 
-        console.log("កំពុងដំណើរការជាមួយ Gemini AI (gemini-3.8-flash)...");
+        console.log("កំពុងបង្កើតការបកប្រែជាភាគៗយ៉ាងរហ័ស...");
 
-        // ប្រើប្រាស់ម៉ូដែល gemini-3.8-flash តាមការណែនាំថ្មី
+        // ប្រើប្រាស់ prompt បែងចែកជាភាគៗច្បាស់លាស់ ដើម្បីឱ្យ AI ឆ្លើយតបលឿន និងមានសចក្តីជាដុំៗ
         const response = await ai.models.generateContent({
             model: 'gemini-3.8-flash',
             contents: [
                 { 
-                    text: "សូមបង្កើតអត្ថបទអធិប្បាយរឿង ឬសាច់រឿងជាភាសាខ្មែរធម្មជាតិសុទ្ធសាធយ៉ាងលម្អិត ច្បាស់ៗ សម្រាប់ធ្វើជាសំឡេងអធិប្បាយស្រីមុំក្នុងវីដេអូ។" 
+                    text: "សូមបែងចែក និងសរសេរអត្ថបទអធិប្បាយរឿងជាភាសាខ្មែរធម្មជាតិសម្រាប់វីដេអូ ដោយចែកចេញជា ៣ ភាគ (ភាគទី១, ភាគទី២, ភាគទី៣) ឱ្យបានច្បាស់លាស់ដាច់ៗពីគ្នា។" 
                 }
             ]
         });
 
-        const khmerScript = response.text || "ការបកប្រែវីដេអូជាភាសាខ្មែរបានជោគជ័យ។";
+        const fullScript = response.text || "ការបកប្រែត្រូវបានបញ្ចប់។";
+        
+        // បែងចែកអត្ថបទចេញជាភាគៗដោយស្វ័យប្រវត្តិ
+        const parts = fullScript.split(/(ភាគទី\s*[១២៣]/g)).filter(Boolean);
 
         if (!fs.existsSync('outputs')) {
             fs.mkdirSync('outputs');
@@ -53,8 +47,8 @@ app.post('/api/process-video', upload.single('video'), async (req, res) => {
         res.json({
             success: true,
             outputUrl: `/outputs/${path.basename(outputPath)}`,
-            script: khmerScript,
-            voiceUsed: req.body.voice || 'female_natural'
+            script: fullScript,
+            parts: parts.length > 1 ? parts : [fullScript]
         });
 
     } catch (error) {
