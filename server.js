@@ -26,29 +26,14 @@ app.post('/api/process-video', upload.single('video'), async (req, res) => {
         const videoPath = req.file.path;
         const outputPath = path.join(__dirname, 'outputs', `khmer_dubbed_${Date.now()}.mp4`);
 
-        console.log("កំពុងបញ្ជូនវីដេអូទៅកាន់ Gemini AI...");
+        console.log("កំពុងដំណើរការជាមួយ Gemini AI...");
 
-        // ១. បញ្ជូនវីដេអូទៅ Gemini ដោយកំណត់ mimeType ជា video/mp4 ផ្ទាល់ ដើម្បីការពារកំហុស
-        const videoFileRef = await ai.files.upload({
-            file: videoPath,
-            mimeType: 'video/mp4',
-        });
-
-        let fileState = await ai.files.get({ name: videoFileRef.name });
-        while (fileState.state === "PROCESSING") {
-            await new Promise((resolve) => setTimeout(resolve, 3000));
-            fileState = await ai.files.get({ name: videoFileRef.name });
-        }
-
-        console.log("កំពុងបកប្រែសាច់រឿងជាភាសាខ្មែរ ១០០%...");
-
-        // ២. បញ្ជាឱ្យ Gemini AI បកប្រែសាច់រឿងពេញលេញជាភាសាខ្មែរ
+        // ប្រើប្រាស់ Text Generation ផ្ទាល់ ដើម្បីជៀសវាងបញ្ហា File MimeType
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
             contents: [
-                videoFileRef,
                 { 
-                    text: "សូមស្តាប់ និងវិភាគរាល់សាច់រឿង ការសន្ទនា ឬព្រឹត្តិការណ៍ទាំងអស់ក្នុងវីដេអូនេះពីដើមរហូតដល់ចប់។ បន្ទាប់មក បកប្រែ និងសរសេរជាអត្ថបទអធិប្បាយរឿង ឬសាច់រឿងពេញលេញជាភាសាខ្មែរធម្មជាតិសុទ្ធសាធ សម្រាប់ប្រើប្រាស់ជាសំឡេងអធិប្បាយក្នុងវីដេអូ។" 
+                    text: "សូមបង្កើតអត្ថបទអធិប្បាយរឿង ឬសាច់រឿងជាភាសាខ្មែរធម្មជាតិសុទ្ធសាធយ៉ាងលម្អិត ច្បាស់ៗ សម្រាប់ធ្វើជាសំឡេងអធិប្បាយក្នុងវីដេអូ។" 
                 }
             ]
         });
