@@ -20,11 +20,11 @@ app.post('/api/process-video', upload.single('video'), async (req, res) => {
         const videoPath = req.file.path;
         const outputPath = path.join(__dirname, 'outputs', `khmer_dubbed_${Date.now()}.mp4`);
 
-        console.log("កំពុងដំណើរការបកប្រែវីដេអូ...");
+        console.log("កំពុងដំណើរការបកប្រែវីដេអូជាមួយ gemini-2.0-flash...");
 
-        // ប្រើប្រាស់ gemini-1.5-flash ដែលមានស្ថេរភាពខ្ពស់ និងមិនសូវស្ទះ Server
+        // ប្រើប្រាស់ gemini-2.0-flash ដែលជាម៉ូដែលស្តង់ដារគាំទ្រពេញលេញ
         const response = await ai.models.generateContent({
-            model: 'gemini-1.5-flash',
+            model: 'gemini-2.0-flash',
             contents: [
                 { 
                     text: "សូមសរសេរអត្ថបទអធិប្បាយរឿងជាភាសាខ្មែរធម្មជាតិសម្រាប់វីដេអូ ដោយចែកចេញជារឿងជាភាគៗច្បាស់លាស់។" 
