@@ -6,7 +6,6 @@ const { GoogleGenAI } = require('@google/genai');
 
 const app = express();
 
-// កំណត់ទំហំផ្ទុកវីដេអូធំទូលាយ (ដល់ទៅ 1GB)
 const upload = multer({ 
     dest: 'uploads/',
     limits: { fileSize: 1024 * 1024 * 1024 } 
@@ -25,32 +24,30 @@ app.post('/api/process-video', upload.single('video'), async (req, res) => {
         }
 
         const videoPath = req.file.path;
+        const selectedVoice = req.body.voice || 'female_natural'; // ទទួលទម្រង់សំឡេងដែលភ្ញៀវបានរើស (ស្រីមុំ)
         const outputPath = path.join(__dirname, 'outputs', `khmer_dubbed_${Date.now()}.mp4`);
 
-        console.log("កំពុងបញ្ជូនវីដេអូទៅកាន់ Gemini AI...");
+        console.log(`กำลังประมวลผลด้วยเสียง AI: ${selectedVoice}`);
 
-        // ១. បញ្ជូនវីដេអូគ្រប់ប្រវែងទៅកាន់ Gemini API
+        // ១. បញ្ជូនវីដេអូទៅកាន់ Gemini API
         const videoFileRef = await ai.files.upload({
             file: videoPath,
             mimeType: req.file.mimetype,
         });
 
-        // រង់ចាំរហូតដល់ Gemini ដំណើរការឯកសាររួចរាល់
         let fileState = await ai.files.get({ name: videoFileRef.name });
         while (fileState.state === "PROCESSING") {
             await new Promise((resolve) => setTimeout(resolve, 3000));
             fileState = await ai.files.get({ name: videoFileRef.name });
         }
 
-        console.log("កំពុងបកប្រែសាច់រឿងជាភាសាខ្មែរ ១០០%...");
-
-        // ២. បញ្ជាឱ្យ Gemini AI បកប្រែសាច់រឿងពេញលេញជាភាសាខ្មែរ
+        // ២. បកប្រែសាច់រឿងជាភាសាខ្មែរ
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
             contents: [
                 videoFileRef,
                 { 
-                    text: "សូមស្តាប់ និងវិភាគរាល់សាច់រឿង ការសន្ទនា ឬព្រឹត្តិការណ៍ទាំងអស់ក្នុងវីដេអូនេះចាប់ពីដើមរហូតដល់ចប់ដោយគ្មានការបោះបង់ចោល។ បន្ទាប់មក បកប្រែ និងសរសេរជាអត្ថបទអធិប្បាយរឿង ឬសាច់រឿងពេញលេញជាភាសាខ្មែរធម្មជាតិសុទ្ធសាធ សម្រាប់ប្រើប្រាស់ជាសំឡេងអធិប្បាយ (Voiceover) ក្នុងវីដេអូ។" 
+                    text: "សូមស្តាប់ និងវិភាគរាល់សាច់រឿង ឬការសន្ទនានៅក្នុងវីដេអូនេះពីដើមរហូតដល់ចប់ រួចសរសេរជាអត្ថបទអធិប្បាយរឿងជាភាសាខ្មែរធម្មជាតិសុទ្ធសាធ សម្រាប់ធ្វើការพากย์เสียง (Voiceover)។" 
                 }
             ]
         });
@@ -61,14 +58,15 @@ app.post('/api/process-video', upload.single('video'), async (req, res) => {
             fs.mkdirSync('outputs');
         }
 
-        // ចម្លងវីដេអូទៅកាន់ថត outputs សម្រាប់ផ្តល់ជូនភ្ញៀវទាញយក និងមើល
+        // ចម្លងវីដេអូសម្រាប់បង្ហាញលទ្ធផល និងទាញយក
         fs.copyFileSync(videoPath, outputPath);
         fs.unlinkSync(videoPath);
 
         res.json({
             success: true,
             outputUrl: `/outputs/${path.basename(outputPath)}`,
-            script: khmerScript
+            script: khmerScript,
+            voiceUsed: selectedVoice
         });
 
     } catch (error) {
