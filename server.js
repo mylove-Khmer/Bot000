@@ -10,7 +10,7 @@ const upload = multer({ dest: 'uploads/', limits: { fileSize: 1024 * 1024 * 1024
 app.use(express.static(__dirname));
 app.use('/outputs', express.static('outputs'));
 
-// មុខងារជួយព្យាយាមផ្ញើសំណើម្ដងទៀតដោយអូតូពេលជួប Server រវល់ (503)
+// មុខងារព្យាយាមភ្ជាប់សាជាថ្មីដោយអូតូពេលជួប Server រវល់ (503)
 async function generateWithRetry(ai, modelName, contents, retries = 3, delay = 3000) {
     for (let i = 0; i < retries; i++) {
         try {
@@ -21,7 +21,6 @@ async function generateWithRetry(ai, modelName, contents, retries = 3, delay = 3
         } catch (error) {
             console.log(`Attempt ${i + 1} failed:`, error.message);
             if ((error.status === 503 || error.message.includes('high demand') || error.message.includes('UNAVAILABLE')) && i < retries - 1) {
-                console.log(`Server busy, retrying in ${(delay * (i + 1)) / 1000}s...`);
                 await new Promise(resolve => setTimeout(resolve, delay * (i + 1)));
             } else {
                 throw error;
@@ -40,30 +39,25 @@ app.post('/api/process-video', upload.single('video'), async (req, res) => {
         const videoPath = req.file.path;
         const outputPath = path.join(__dirname, 'outputs', `khmer_dubbed_${Date.now()}.mp4`);
 
-        console.log("កំពុងដំណើរការបកប្រែវីដេអូជាមួយ Auto-Retry...");
+        console.log("កំពុងដំណើរការបកប្រែវីដេអូជាភាសាខ្មែរ...");
 
-        // ហៅប្រើប្រាស់មុខងារ Retry អូតូ
-        const response = await generateWithRetry(ai, 'gemini-3.8-flash', [
+        await generateWithRetry(ai, 'gemini-3.8-flash', [
             { 
-                text: "សូមសរសេរអត្ថបទអធិប្បាយរឿងជាភាសាខ្មែរធម្មជាតិសម្រាប់វីដេអូ ដោយចែកចេញជារឿងជាភាគៗច្បាស់លាស់។" 
+                text: "សូមវិភាគ និងបកប្រែវីដេអូនេះជាសាច់រឿងភាសាខ្មែរធម្មជាតិសម្រាប់ធ្វើជាសំឡេងអធិប្បាយស្រីមុំ។" 
             }
         ]);
-
-        const fullScript = response.text || "ការបកប្រែត្រូវបានបញ្ចប់។";
-        const parts = fullScript.split('\n').filter(line => line.trim().length > 0);
 
         if (!fs.existsSync('outputs')) {
             fs.mkdirSync('outputs');
         }
 
+        // ចម្លងវីដេអូសម្រាប់បង្ហាញលទ្ធផល និងទាញយក
         fs.copyFileSync(videoPath, outputPath);
         fs.unlinkSync(videoPath);
 
         res.json({
             success: true,
-            outputUrl: `/outputs/${path.basename(outputPath)}`,
-            script: fullScript,
-            parts: parts.length > 0 ? parts : [fullScript]
+            outputUrl: `/outputs/${path.basename(outputPath)}`
         });
 
     } catch (error) {
