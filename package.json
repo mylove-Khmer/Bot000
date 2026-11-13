@@ -1,0 +1,14 @@
+{
+  "name": "khmer-video-dubber",
+  "version": "1.0.0",
+  "description": "Khmer AI Video Dubber App",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@google/genai": "^0.1.1",
+    "express": "^4.19.2",
+    "multer": "^1.4.5-lts.1"
+  }
+}
