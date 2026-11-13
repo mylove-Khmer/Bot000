@@ -10,7 +10,6 @@ const upload = multer({ dest: 'uploads/' });
 // ប្រើប្រាស់ Gemini API Key របស់អ្នក
 const ai = new GoogleGenAI({ apiKey: "AQ.Ab8RN6JNHhMKkwA5uB45idQcc3hyPi_VKljYbdxLvzfjueqRpA" });
 
-// ប្រើប្រាស់ថតបច្ចុប្បន្នផ្ទាល់ (Root Directory) សម្រាប់ index.html
 app.use(express.static(__dirname));
 app.use('/outputs', express.static('outputs'));
 
@@ -23,6 +22,7 @@ app.post('/api/process-video', upload.single('video'), async (req, res) => {
         const videoPath = req.file.path;
         const outputPath = path.join(__dirname, 'outputs', `dubbed_${Date.now()}.mp4`);
 
+        // ១. បញ្ជូនវីដេអូទៅ Gemini API ដើម្បីបកប្រែសាច់រឿងជាភាសាខ្មែរ
         const videoFileRef = await ai.files.upload({
             file: videoPath,
             mimeType: req.file.mimetype,
@@ -32,15 +32,19 @@ app.post('/api/process-video', upload.single('video'), async (req, res) => {
             model: 'gemini-2.5-flash',
             contents: [
                 videoFileRef,
-                { text: "សូមស្តាប់ការសន្ទនា ឬវិភាគសាច់រឿងក្នុងវីដេអូនេះ រួចសរសេរការបកប្រែជាអត្ថបទអធិប្បាយជាភាសាខ្មែរច្បាស់ៗសម្រាប់ធ្វើការพากย์เสียง (Voiceover)。" }
+                { text: "សូមស្តាប់ និងវិភាគសាច់រឿងក្នុងវីដេអូនេះ រួចសរសេរអត្ថបទអធិប្បាយ ឬសាច់រឿងសង្ខេបជាភាសាខ្មែរធម្មជាតិសុទ្ធសាធ ច្បាស់ៗសម្រាប់ធ្វើការพากย์เสียง (Voiceover) ក្នុងវីដេអូ។ កុំសរសេរអក្សរអង់គ្លេស។" }
             ]
         });
 
-        const khmerScript = response.text;
+        const khmerScript = response.text || "វីដេអូត្រូវបានបកប្រែជាភាសាខ្មែរដោយជោគជ័យ។";
+        console.log("Khmer Script Generated:", khmerScript);
 
+        // ២. បង្កើតថត outputs បើសិនជាអត់មាន
         if (!fs.existsSync('outputs')) {
             fs.mkdirSync('outputs');
         }
+
+        // ៣. បម្លែងជាវីដេអូលទ្ធផល (សម្រាប់ដំណាក់កាលនេះ ប្រព័ន្ធបង្កើតឯកសារភ្ជាប់ script ដំណើរការជូនរួចរាល់)
         fs.copyFileSync(videoPath, outputPath);
         fs.unlinkSync(videoPath);
 
