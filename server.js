@@ -24,16 +24,14 @@ app.post('/api/process-video', upload.single('video'), async (req, res) => {
         }
 
         const videoPath = req.file.path;
-        const mimeType = req.file.mimetype || 'video/mp4'; // កំណត់ mimeType ឱ្យមានតម្លៃច្បាស់លាស់
-        const selectedVoice = req.body.voice || 'female_natural';
         const outputPath = path.join(__dirname, 'outputs', `khmer_dubbed_${Date.now()}.mp4`);
 
-        console.log(`กำลังอัปโหลดไฟล์ប្រភេទ ${mimeType} ໄປកាន់ Gemini AI...`);
+        console.log("កំពុងបញ្ជូនវីដេអូទៅកាន់ Gemini AI...");
 
-        // ១. បញ្ជូនវីដេអូទៅកាន់ Gemini API ព្រមទាំងដាក់ mimeType ឱ្យបានត្រឹមត្រូវ
+        // ១. បញ្ជូនវីដេអូទៅ Gemini ដោយកំណត់ mimeType ជា video/mp4 ផ្ទាល់ ដើម្បីការពារកំហុស
         const videoFileRef = await ai.files.upload({
             file: videoPath,
-            mimeType: mimeType,
+            mimeType: 'video/mp4',
         });
 
         let fileState = await ai.files.get({ name: videoFileRef.name });
@@ -50,7 +48,7 @@ app.post('/api/process-video', upload.single('video'), async (req, res) => {
             contents: [
                 videoFileRef,
                 { 
-                    text: "សូមស្តាប់ និងវិភាគរាល់សាច់រឿង ការសន្ទនា ឬព្រឹត្តិការណ៍ទាំងអស់ក្នុងវីដេអូនេះពីដើមរហូតដល់ចប់។ បន្ទាប់មក បកប្រែ និងសរសេរជាអត្ថបទអធិប្បាយរឿង ឬសាច់រឿងពេញលេញជាភាសាខ្មែរធម្មជាតិសុទ្ធសាធ សម្រាប់ប្រើប្រាស់ជាសំឡេងអធិប្បាយ (Voiceover) ក្នុងវីដេអូ។" 
+                    text: "សូមស្តាប់ និងវិភាគរាល់សាច់រឿង ការសន្ទនា ឬព្រឹត្តិការណ៍ទាំងអស់ក្នុងវីដេអូនេះពីដើមរហូតដល់ចប់។ បន្ទាប់មក បកប្រែ និងសរសេរជាអត្ថបទអធិប្បាយរឿង ឬសាច់រឿងពេញលេញជាភាសាខ្មែរធម្មជាតិសុទ្ធសាធ សម្រាប់ប្រើប្រាស់ជាសំឡេងអធិប្បាយក្នុងវីដេអូ។" 
                 }
             ]
         });
@@ -69,7 +67,7 @@ app.post('/api/process-video', upload.single('video'), async (req, res) => {
             success: true,
             outputUrl: `/outputs/${path.basename(outputPath)}`,
             script: khmerScript,
-            voiceUsed: selectedVoice
+            voiceUsed: req.body.voice || 'female_natural'
         });
 
     } catch (error) {
