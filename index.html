@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ប្រព័ន្ធបកប្រែវីដេអូ និងប្ដូរសំឡេងខ្មែរ AI ១០០%</title>
+    <title>Khmer AI Video Dubber Studio</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -11,6 +11,7 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
 
+    <!-- Header -->
     <header class="border-b border-slate-800 bg-slate-900/60 backdrop-blur sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
             <div class="flex items-center space-x-3">
@@ -18,17 +19,20 @@
                     <i class="fa-solid fa-wand-magic-sparkles text-white text-xl"></i>
                 </div>
                 <div>
-                    <h1 class="font-bold text-lg text-white">Khmer AI Video Dubber</h1>
-                    <p class="text-xs text-slate-400">ប្រព័ន្ធបកប្រែ និងអធិប្បាយសំឡេងខ្មែរ AI ពិតប្រាកដ</p>
+                    <h1 class="font-bold text-lg text-white">Khmer AI Video Dubber Studio</h1>
+                    <p class="text-xs text-slate-400">ប្រព័ន្ធបកប្រែវីដេអូ និងប្ដូរសំឡេងជាភាសាខ្មែរ ១០០%</p>
                 </div>
             </div>
             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                <span class="w-2 h-2 mr-1.5 bg-emerald-500 rounded-full animate-pulse"></span> Gemini AI & TTS Active
+                <span class="w-2 h-2 mr-1.5 bg-emerald-500 rounded-full animate-pulse"></span> Gemini AI Dubbing Active
             </span>
         </div>
     </header>
 
+    <!-- Main Content -->
     <main class="flex-grow max-w-7xl mx-auto px-4 py-8 w-full grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Left: Upload Section -->
         <div class="lg:col-span-1 space-y-6">
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
                 <h2 class="text-lg font-semibold mb-4 text-indigo-400 flex items-center">
@@ -41,7 +45,7 @@
                         <i class="fa-solid fa-video text-xl"></i>
                     </div>
                     <p class="text-sm font-medium text-slate-300">ទម្លាក់វីដេអូទីនេះ ឬ <span class="text-indigo-400 underline">ជ្រើសរើសឯកសារ</span></p>
-                    <p class="text-xs text-slate-500 mt-1">MP4, MKV, AVI (អតិបរមា 500MB)</p>
+                    <p class="text-xs text-slate-500 mt-1">MP4, MKV, AVI (គាំទ្រគ្រប់ប្រវែងវីដេអូ)</p>
                 </div>
 
                 <div id="fileInfo" class="mt-4 hidden p-3 bg-slate-950 rounded-lg border border-slate-800 flex items-center justify-between">
@@ -51,55 +55,59 @@
 
                 <div class="mt-6 space-y-4">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">ទម្រង់សំឡេង AI (Khmer Voice)</label>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">ទម្រង់សំឡេង AI ខ្មែរ</label>
                         <select id="voiceType" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-slate-200">
-                            <option value="km-KH-Standard-A">សំឡេងស្ត្រីខ្មែរ (Standard A)</option>
-                            <option value="km-KH-Standard-B">សំឡេងបុរសខ្មែរ (Standard B)</option>
+                            <option value="female_natural">សំឡេងស្ត្រីខ្មែរធម្មជាតិ (Sreymom)</option>
+                            <option value="male_deep">សំឡេងបុរសខ្មែរអាជីព (Vibol)</option>
                         </select>
                     </div>
 
                     <button onclick="uploadAndProcess()" id="processBtn" disabled class="w-full mt-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 disabled:opacity-50 text-white font-medium py-3 rounded-xl shadow-lg transition-all flex items-center justify-center space-x-2">
-                        <i class="fa-solid fa-play"></i>
-                        <span>ចាប់ផ្តើមបកប្រែ និងប្ដូរសំឡេងខ្មែរ ១០០%</span>
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <span>បកប្រែ និងប្ដូរសំឡេងខ្មែរឥឡូវនេះ</span>
                     </button>
                 </div>
             </div>
         </div>
 
+        <!-- Right: Preview & Result -->
         <div class="lg:col-span-2 space-y-6">
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col h-full min-h-[450px]">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col h-full min-h-[480px]">
                 <h2 class="text-lg font-semibold mb-4 text-indigo-400 flex items-center">
-                    <i class="fa-solid fa-display mr-2"></i> លទ្ធផលវីដេអូប្ដូរសំឡេងខ្មែរ
+                    <i class="fa-solid fa-display mr-2"></i> លទ្ធផលវីដេអូសំឡេងខ្មែរ
                 </h2>
                 
                 <div id="displayArea" class="flex-grow bg-slate-950 rounded-xl border border-slate-800 flex flex-col items-center justify-center p-6 text-center relative overflow-hidden">
+                    
                     <div id="placeholderState" class="space-y-3">
                         <div class="w-16 h-16 rounded-full bg-slate-900 text-slate-600 mx-auto flex items-center justify-center text-2xl">
                             <i class="fa-solid fa-film"></i>
                         </div>
-                        <p class="text-sm text-slate-400">សូមផ្ទុកវីដេអូ និងចុចប៊ូតុងចាប់ផ្តើមដើម្បីមើលលទ្ធផលនៅទីនេះ</p>
+                        <p class="text-sm text-slate-400">សូមបញ្ចូលវីដេអូ ហើយចុចប៊ូតុងបកប្រែដើម្បីចាប់ផ្តើម</p>
                     </div>
 
                     <div id="processingState" class="hidden space-y-4 w-full max-w-md">
                         <div class="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
-                        <p class="text-sm text-slate-300 font-medium" id="statusText">កំពុងវិភាគវីដេអូ និងបកប្រែជាសំឡេងខ្មែរ...</p>
+                        <p class="text-sm text-slate-300 font-medium" id="statusText">កំពុងវិភាគវីដេអូ និងបកប្រែសំឡេងជាភាសាខ្មែរ...</p>
                     </div>
 
                     <div id="resultState" class="hidden w-full h-full flex flex-col items-center justify-center space-y-4">
-                        <video id="outputVideo" controls class="w-full max-h-[320px] rounded-lg shadow-lg bg-black"></video>
+                        <video id="outputVideo" controls class="w-full max-h-[340px] rounded-lg shadow-lg bg-black"></video>
                         <div class="flex space-x-4">
                             <a id="downloadLink" class="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-medium transition-all shadow-lg flex items-center space-x-2">
                                 <i class="fa-solid fa-download"></i>
-                                <span>ទាញយកវីដេអូ (Khmer Dubbed)</span>
+                                <span>ទាញយកវីដេអូសំឡេងខ្មែរ (MP4)</span>
                             </a>
                             <button onclick="location.reload()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2.5 rounded-xl text-sm font-medium">
-                                <i class="fa-solid fa-rotate-right mr-1"></i> សាកល្បងម្ដងទៀត
+                                <i class="fa-solid fa-rotate-right mr-1"></i> បញ្ចូលវីដេអូថ្មី
                             </button>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>
+
     </main>
 
     <script>
